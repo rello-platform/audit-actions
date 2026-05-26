@@ -25,7 +25,10 @@
  * keys on this ratified grammar — NOT a strict `^[a-z]+$` shape.
  *
  * SEED step (KEYSPACE-SEED): canonical registry + `listActiveAuditActions()` SOT
- * primitive only. No normalizer (step B) and no build-guard (steps C/D) here.
+ * primitive. NORMALIZER step (B, v0.2.0): `normalizeAuditAction(raw, entityType?)`
+ * + the two reverse variant maps, absorbing Rello's two read-side normalizers so
+ * the admin filter and the future `check:audit-actions` guard share ONE fold. No
+ * build-guard (steps C/D) here.
  *
  * Promotion provenance: the read-side union shipped in Rello's
  * `src/lib/admin/audit-filters.ts` (`ACTION_VALUES` 22 + `EVENT_ACTION_VALUES`
@@ -233,4 +236,179 @@ export function listActiveAuditActions(): readonly CanonicalAuditAction[] {
   return (Object.keys(EXACT_REGISTRY) as CanonicalAuditAction[]).filter(
     (action) => EXACT_REGISTRY[action].tier !== "telemetry",
   );
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// NORMALIZER (step B) — absorbs Rello's two read-side action-normalizers.
+//
+// Promotion provenance: this folds + the two reverse variant maps are ported
+// VERBATIM from Rello's `src/lib/audit/{crud-case,apikey-action}-normalization.ts`
+// so the admin filter expansion (`buildAuditWhere`) and the future
+// `check:audit-actions` guard share ONE canonical fold. Behavior-neutral — same
+// maps, same derivation, now packaged + reused.
+//
+// CRITICAL — pass-through is verbatim (NOT lowercased). The unified
+// `normalizeAuditAction` folds ONLY the explicit map keys; domain-event vocab
+// (`lead_tag_added`, `TENANT_PROVISIONED`, `rello.meeting_booked`, …) and dotted
+// families pass through untouched, preserving forensic signal. The legacy
+// `normalizeApiKeyAuditAction` retains its `.toLowerCase()` miss fallback for
+// byte-identical parity with the shipped per-ApiKey audit-trail display.
+// ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * Generic CRUD case + tense fold → canonical lowercase verb (all members of
+ * the CRUD/composite registry tier). `activated` folds to the canonical
+ * uppercase composite `ACTIVATE`. Only these keys fold; everything else passes
+ * through verbatim. (Ported from `crud-case-normalization.ts`.)
+ */
+export const CRUD_CASE_MAP: Record<string, string> = {
+  CREATE: "create",
+  created: "create",
+  UPDATE: "update",
+  updated: "update",
+  DELETE: "delete",
+  deleted: "delete",
+  activated: "ACTIVATE", // tense → canonical uppercase composite (ACTIVATE ∈ registry)
+};
+
+/**
+ * 28 prod ApiKey `action` literals → 4 canonical buckets (`create`/`grant`/
+ * `update`/`revoke`). Scoped to `entityType=api_key` only — `DELETE` buckets to
+ * `revoke` here (soft-revoke semantics), which MUST NOT apply platform-wide.
+ * (Ported from `apikey-action-normalization.ts`.)
+ */
+export const CANONICAL_APIKEY_ACTION_MAP: Record<string, string> = {
+  // create (mint) — 7 variants
+  "apikey.created": "create",
+  "apikey.create": "create",
+  create: "create",
+  CREATE: "create",
+  "apikey.mint": "create",
+  api_key_minted: "create",
+  "apikey.minted_broad_scope_canonical_pfp_rello": "create",
+  // grant (permission addition) — 4 variants
+  "apikey.permissions.append": "grant",
+  "apikey.permissions_appended": "grant",
+  "apikey.permissions_appended_recovery": "grant",
+  "ApiKey.PERMISSION_GRANTED": "grant",
+  // update (permission modify/replace/remove + key-field change) — 9 variants
+  update: "update",
+  UPDATE: "update",
+  "apikey.update": "update",
+  "apikey.permissions.update": "update",
+  "apikey.permissions_replaced": "update",
+  "apikey.permission_removed_post_callsite_refactor": "update",
+  "apikey.permissions_legacy_slug_removed": "update",
+  "apikey.rotated": "update", // key-material rotation (changes oldSha→newSha); no canonical "rotate"
+  "apikey.tenant_scoped": "update", // verified: changes={tenantId:{from:null,to:...}} — modifies existing key
+  // revoke (revoke / deactivate / soft-delete) — 8 variants
+  "apikey.revoked": "revoke",
+  DELETE: "revoke", // DELETE handler does soft-revoke (isActive=false), not hard delete
+  "apikey.revoke": "revoke",
+  revoke: "revoke",
+  apikey_orphan_deactivated: "revoke",
+  DEACTIVATE: "revoke",
+  "soft-revoke": "revoke",
+  "apikey.deactivated_exhaustive_search_no_consumer_found": "revoke",
+};
+
+export type CanonicalApiKeyAction =
+  (typeof CANONICAL_APIKEY_ACTION_MAP)[keyof typeof CANONICAL_APIKEY_ACTION_MAP];
+
+/** Derive a forward map's inverse: canonical → all variants (incl. itself). */
+function invertForwardMap(forward: Record<string, string>): Record<string, string[]> {
+  const inverse: Record<string, string[]> = {};
+  for (const [variant, canonical] of Object.entries(forward)) {
+    (inverse[canonical] ??= []).push(variant);
+  }
+  for (const canonical of Object.keys(inverse)) {
+    if (!inverse[canonical].includes(canonical)) inverse[canonical].push(canonical);
+  }
+  return inverse;
+}
+
+/**
+ * Inverse of `CRUD_CASE_MAP`: canonical verb → all case/tense variants (incl.
+ * the canonical itself). `buildAuditWhere` expands a canonical filter value →
+ * all stored variants. Derived identically to Rello's local copy (same forward
+ * map, same insertion order) so the expanded array is byte-identical.
+ */
+export const CRUD_CASE_VARIANTS: Record<string, string[]> =
+  invertForwardMap(CRUD_CASE_MAP);
+
+/**
+ * Inverse of `CANONICAL_APIKEY_ACTION_MAP`: canonical bucket → all raw variants
+ * (incl. the canonical key itself). Used by `buildAuditWhere` only when
+ * `entityType=api_key`. Byte-identical to Rello's local derivation.
+ */
+export const APIKEY_ACTION_BUCKET_VARIANTS: Record<string, string[]> =
+  invertForwardMap(CANONICAL_APIKEY_ACTION_MAP);
+
+/**
+ * Generic CRUD case/tense fold (legacy parity with `normalizeCrudAction` in
+ * `crud-case-normalization.ts`). Folds ONLY `CRUD_CASE_MAP` keys; everything
+ * else passes through verbatim (NEVER lowercased — preserves forensic signal).
+ * Empty/nullish → `""`.
+ */
+export function normalizeCrudAction(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (trimmed === "") return "";
+  return CRUD_CASE_MAP[trimmed] ?? trimmed;
+}
+
+/**
+ * ApiKey 28→4 bucket fold (legacy parity with `normalizeApiKeyAuditAction` in
+ * `apikey-action-normalization.ts`). Unknown values fall back to
+ * `raw.toLowerCase().trim()` — this lowercasing miss-fallback is retained for
+ * byte-identical parity with the shipped per-ApiKey audit-trail display surface
+ * (DELIBERATELY different from the verbatim pass-through of the generic fold).
+ * Empty/nullish → `""`.
+ */
+export function normalizeApiKeyAuditAction(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (trimmed === "") return "";
+  const canonical = CANONICAL_APIKEY_ACTION_MAP[trimmed];
+  if (canonical) return canonical;
+  return trimmed.toLowerCase();
+}
+
+/**
+ * Unified canonical action fold — the step-B deliverable. Resolves a raw
+ * `AuditLog.action` value to its canonical form for the (future)
+ * `check:audit-actions` guard AND any read normalization, sharing ONE fold.
+ *
+ * Precedence (matches the read-side inverse semantics):
+ *   1. `entityType === "api_key"` → the ApiKey 28→4 bucket fold takes precedence
+ *      (so `DELETE` → `revoke` soft-revoke semantics, NOT the generic `delete`).
+ *   2. otherwise the generic CRUD case/tense fold (`CREATE`/`updated`/… → verb).
+ *   3. already-canonical exact verbs + dotted-family values → returned VERBATIM.
+ *   4. unresolved → trimmed `raw` VERBATIM (NO lowercasing — forensic signal).
+ *
+ * Empty/nullish → `""`. Domain-event vocab + dotted families always pass through
+ * unchanged. This is INTENTIONALLY non-lowercasing on miss (unlike the legacy
+ * `normalizeApiKeyAuditAction`); the legacy fn is retained separately for the
+ * display surface that relies on its lowercasing.
+ */
+export function normalizeAuditAction(
+  raw: string | null | undefined,
+  entityType?: string,
+): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (trimmed === "") return "";
+  // (1) api_key-scoped bucket fold wins (DELETE→revoke etc.).
+  if (entityType === "api_key") {
+    const bucket = CANONICAL_APIKEY_ACTION_MAP[trimmed];
+    if (bucket) return bucket;
+  }
+  // (2) generic CRUD case/tense fold.
+  const crud = CRUD_CASE_MAP[trimmed];
+  if (crud) return crud;
+  // (3) already canonical (exact verb or dotted family) → verbatim.
+  if (isCanonicalAuditAction(trimmed)) return trimmed;
+  if (matchesAuditActionFamily(trimmed)) return trimmed;
+  // (4) unresolved → trimmed raw verbatim (NO lowercasing).
+  return trimmed;
 }
