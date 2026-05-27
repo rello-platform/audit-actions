@@ -75,7 +75,7 @@ export interface AuditActionFamily {
  * byte-identical to the hand-maintained arrays it replaces.
  */
 const EXACT_REGISTRY_DATA = {
-  // ── CRUD / composite verbs (Rello audit-filters `ACTION_VALUES`, 22) ───────
+  // ── CRUD / composite verbs (Rello audit-filters `ACTION_VALUES`, 24) ───────
   create: { lifecycle: "active", kind: "crud_composite" },
   update: { lifecycle: "active", kind: "crud_composite" },
   delete: { lifecycle: "active", kind: "crud_composite" },
@@ -97,6 +97,22 @@ const EXACT_REGISTRY_DATA = {
   IMPERSONATE_START: { lifecycle: "active", kind: "crud_composite" },
   IMPERSONATE_STOP: { lifecycle: "active", kind: "crud_composite" },
   ACTIVATE: { lifecycle: "active", kind: "crud_composite" },
+  // Guest-MLO lifecycle state-mutation verb (`GUEST_MLO_ACTIONS.CONVERTED`
+  // convert route) — bare lowercase CRUD-class verb, mirroring its sibling
+  // lifecycle verbs `created→create` / `updated→update` / `activated→ACTIVATE`.
+  converted: {
+    lifecycle: "active",
+    kind: "crud_composite",
+    description: "Guest-MLO → agent conversion (guest-mlos convert route).",
+  },
+  // Entitlement modify composite (`UPDATE_ENTITLEMENT`, tenants/[id]/
+  // entitlements/[feature] route) — uppercase composite admin verb, mirroring
+  // the `TICKET_UPDATE` / `CONFIG_CHANGE` composite-update convention.
+  UPDATE_ENTITLEMENT: {
+    lifecycle: "active",
+    kind: "crud_composite",
+    description: "TenantEntitlement modify (admin entitlements route).",
+  },
   CONFIG_CHANGE: { lifecycle: "active", kind: "crud_composite" },
 
   // ── Domain events: security / tenant tier (9) ──────────────────────────────
@@ -110,7 +126,7 @@ const EXACT_REGISTRY_DATA = {
   "TenantApp.CREATE": { lifecycle: "active", kind: "domain_event" },
   "TenantEntitlement.CREATE": { lifecycle: "active", kind: "domain_event" },
 
-  // ── Domain events: core-CRM tier (12) ──────────────────────────────────────
+  // ── Domain events: core-CRM tier (16) ──────────────────────────────────────
   lead_tag_added: { lifecycle: "active", kind: "domain_event" },
   lead_tag_removed: { lifecycle: "active", kind: "domain_event" },
   lead_created: { lifecycle: "active", kind: "domain_event" },
@@ -118,6 +134,9 @@ const EXACT_REGISTRY_DATA = {
   lead_deleted: { lifecycle: "active", kind: "domain_event" },
   lead_updated: { lifecycle: "active", kind: "domain_event" },
   HUB_LINK_ISSUED: { lifecycle: "active", kind: "domain_event" },
+  // Resend variant of HUB_LINK_ISSUED (issue-magic-link.ts ternary) — mirrors
+  // its sibling's `domain_event` classification exactly.
+  HUB_LINK_RESENT: { lifecycle: "active", kind: "domain_event" },
   HUB_PREVIEW_ISSUED: { lifecycle: "active", kind: "domain_event" },
   HUB_INVITE_NOOP: { lifecycle: "active", kind: "domain_event" },
   LEAD_CLAIMED_VIA_HUB_LINK: { lifecycle: "active", kind: "domain_event" },
@@ -128,6 +147,25 @@ const EXACT_REGISTRY_DATA = {
     kind: "domain_event",
     description:
       "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).",
+  },
+  // Guest-MLO domain-event verbs (emitted via `GUEST_MLO_ACTIONS.*` member
+  // expressions / a retention-sweep static literal — terminal values written to
+  // `AuditLog.action`). Registered so they resolve + auto-surface in the
+  // SOT-derived compliance dropdown (supersedes AUDIT-FILTER-UNION-GUEST-MLO-FIX).
+  invite_resent: {
+    lifecycle: "active",
+    kind: "domain_event",
+    description: "Guest-MLO invite re-send (resend-invite / reinvite routes).",
+  },
+  GUEST_MLO_DISCLOSURE_ACCEPTED: {
+    lifecycle: "active",
+    kind: "domain_event",
+    description: "Guest-MLO RESPA/GLBA disclosure acceptance (accept-disclosure route).",
+  },
+  GUEST_MLO_DATA_RETENTION_EXPIRED: {
+    lifecycle: "active",
+    kind: "domain_event",
+    description: "Guest-MLO data-retention expiry sweep (guest-mlo-retention-sweep job).",
   },
 
   // ── Domain events: meeting / booking tier (23) ─────────────────────────────
