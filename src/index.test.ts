@@ -52,14 +52,18 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
   assert.equal(isCanonicalAuditAction("boot_preflight_env_mirror_check_v2"), true);
 });
 
-test("listActiveAuditActions reproduces the 66 dropdown entries, grouped + ordered", () => {
+test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 67);
+  assert.equal(active.length, 73);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
-  assert.equal(crud.length, 22, "CRUD/composite optgroup must stay 22");
-  assert.equal(events.length, 45, "Events optgroup (44 + agent_today_card_created)");
+  assert.equal(crud.length, 24, "CRUD/composite optgroup (22 + converted + UPDATE_ENTITLEMENT)");
+  assert.equal(
+    events.length,
+    49,
+    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED)",
+  );
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
   const firstEventIdx = active.findIndex(

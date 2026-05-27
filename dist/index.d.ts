@@ -158,6 +158,16 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "crud_composite";
     };
+    readonly converted: {
+        readonly lifecycle: "active";
+        readonly kind: "crud_composite";
+        readonly description: "Guest-MLO → agent conversion (guest-mlos convert route).";
+    };
+    readonly UPDATE_ENTITLEMENT: {
+        readonly lifecycle: "active";
+        readonly kind: "crud_composite";
+        readonly description: "TenantEntitlement modify (admin entitlements route).";
+    };
     readonly CONFIG_CHANGE: {
         readonly lifecycle: "active";
         readonly kind: "crud_composite";
@@ -226,6 +236,10 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
     };
+    readonly HUB_LINK_RESENT: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
     readonly HUB_PREVIEW_ISSUED: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
@@ -250,6 +264,21 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
         readonly description: "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).";
+    };
+    readonly invite_resent: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "Guest-MLO invite re-send (resend-invite / reinvite routes).";
+    };
+    readonly GUEST_MLO_DISCLOSURE_ACCEPTED: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "Guest-MLO RESPA/GLBA disclosure acceptance (accept-disclosure route).";
+    };
+    readonly GUEST_MLO_DATA_RETENTION_EXPIRED: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "Guest-MLO data-retention expiry sweep (guest-mlo-retention-sweep job).";
     };
     readonly "rello.meeting_booked": {
         readonly lifecycle: "active";
