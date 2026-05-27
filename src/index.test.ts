@@ -54,12 +54,12 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
 
 test("listActiveAuditActions reproduces the 66 dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 66);
+  assert.equal(active.length, 67);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
   assert.equal(crud.length, 22, "CRUD/composite optgroup must stay 22");
-  assert.equal(events.length, 44, "Events optgroup must stay 44");
+  assert.equal(events.length, 45, "Events optgroup (44 + agent_today_card_created)");
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
   const firstEventIdx = active.findIndex(
@@ -82,6 +82,7 @@ test("isCanonicalAuditAction narrows known + rejects unknown", () => {
   assert.equal(isCanonicalAuditAction("create"), true);
   assert.equal(isCanonicalAuditAction("TenantApp.CREATE"), true);
   assert.equal(isCanonicalAuditAction("rello.meeting_booked"), true);
+  assert.equal(isCanonicalAuditAction("agent_today_card_created"), true);
   assert.equal(isCanonicalAuditAction("not_a_real_action"), false);
   assert.equal(isCanonicalAuditAction(""), false);
 });
@@ -94,6 +95,9 @@ test("matchesAuditActionFamily matches dotted domain-action prefixes only", () =
     "lender_llpa_override.",
   );
   assert.equal(matchesAuditActionFamily("support.suggest_reply")?.prefix, "support.");
+  assert.equal(matchesAuditActionFamily("crm.connection.synced")?.prefix, "crm.connection.");
+  assert.equal(matchesAuditActionFamily("crm.connection.disconnected")?.prefix, "crm.connection.");
+  assert.equal(matchesAuditActionFamily("crm.connection.expiry_reminder_sent")?.prefix, "crm.connection.");
   assert.equal(matchesAuditActionFamily("create"), null);
   // Must NOT claim the signals-owned `<slug>.audit.` signal-type families.
   assert.equal(matchesAuditActionFamily("content-engine.audit.lead.created"), null);

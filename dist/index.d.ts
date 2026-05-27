@@ -246,6 +246,11 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
     };
+    readonly agent_today_card_created: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).";
+    };
     readonly "rello.meeting_booked": {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
