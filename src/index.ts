@@ -123,6 +123,12 @@ const EXACT_REGISTRY_DATA = {
   LEAD_CLAIMED_VIA_HUB_LINK: { lifecycle: "active", kind: "domain_event" },
   bulk_tag_add: { lifecycle: "active", kind: "domain_event" },
   webhook_endpoint_events_updated: { lifecycle: "active", kind: "domain_event" },
+  agent_today_card_created: {
+    lifecycle: "active",
+    kind: "domain_event",
+    description:
+      "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).",
+  },
 
   // ── Domain events: meeting / booking tier (23) ─────────────────────────────
   // Mirror of Rello `AUDIT_EVENTS` (src/lib/booking/audit-events.ts), promoted
@@ -205,6 +211,11 @@ export const FAMILY_REGISTRY: readonly AuditActionFamily[] = [
     prefix: "support.",
     description:
       "Admin support-tool actions (generate_context/generate_template/suggest_reply).",
+  },
+  {
+    prefix: "crm.connection.",
+    description:
+      "Harvest-Home CRM-connection lifecycle (synced/disconnected/expiry_reminder_sent) — written to the Rello-owned AuditLog via the cross-schema raw-SQL helper.",
   },
 ] as const;
 
