@@ -261,6 +261,11 @@ export const FAMILY_REGISTRY: readonly AuditActionFamily[] = [
     description:
       "Harvest-Home CRM-connection lifecycle (synced/disconnected/expiry_reminder_sent) — written to the Rello-owned AuditLog via the cross-schema raw-SQL helper.",
   },
+  {
+    prefix: "co_marketing.",
+    description:
+      "Co-marketing functional co-branding state mutations (branding.upsert/branding.delete, config.update, attestation.write/attestation.revoke, and co_marketing.*_lender_assign verbs) — RESPA-defensibility audit trail per SPEC-RELLO-II-CO-MARKETING-FUNCTIONAL-CO-BRANDING §8.D. NO per-render audit (would create a billing-prep basis — §1.2).",
+  },
 ] as const;
 
 /** Full canonical action set (includes telemetry-tier keys — they ARE known
