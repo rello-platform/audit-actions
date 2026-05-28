@@ -265,6 +265,11 @@ declare const EXACT_REGISTRY_DATA: {
         readonly kind: "domain_event";
         readonly description: "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).";
     };
+    readonly hh_nonqm_type_classified: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "Harvest-Home non-QM product classification on the INVESTOR branch (DSCR vs BANK_STATEMENT) at intake — HH-DSCR-AWARE-INTAKE-AND-SCORING. SYSTEM-actored, written Pattern A via src/lib/admin/audit.ts.";
+    };
     readonly invite_resent: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";

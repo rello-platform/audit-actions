@@ -54,15 +54,15 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 73);
+  assert.equal(active.length, 74);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
   assert.equal(crud.length, 24, "CRUD/composite optgroup (22 + converted + UPDATE_ENTITLEMENT)");
   assert.equal(
     events.length,
-    49,
-    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED)",
+    50,
+    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified)",
   );
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
