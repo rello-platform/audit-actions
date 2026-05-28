@@ -126,7 +126,7 @@ const EXACT_REGISTRY_DATA = {
   "TenantApp.CREATE": { lifecycle: "active", kind: "domain_event" },
   "TenantEntitlement.CREATE": { lifecycle: "active", kind: "domain_event" },
 
-  // ── Domain events: core-CRM tier (16) ──────────────────────────────────────
+  // ── Domain events: core-CRM tier (17) ──────────────────────────────────────
   lead_tag_added: { lifecycle: "active", kind: "domain_event" },
   lead_tag_removed: { lifecycle: "active", kind: "domain_event" },
   lead_created: { lifecycle: "active", kind: "domain_event" },
@@ -147,6 +147,12 @@ const EXACT_REGISTRY_DATA = {
     kind: "domain_event",
     description:
       "AgentTodayCard creation (PFP cockpit re-engagement signal emitters: hecm-eligibility / dscr-reengagement / bankstatement-reengagement).",
+  },
+  hh_nonqm_type_classified: {
+    lifecycle: "active",
+    kind: "domain_event",
+    description:
+      "Harvest-Home non-QM product classification on the INVESTOR branch (DSCR vs BANK_STATEMENT) at intake — HH-DSCR-AWARE-INTAKE-AND-SCORING. SYSTEM-actored, written Pattern A via src/lib/admin/audit.ts.",
   },
   // Guest-MLO domain-event verbs (emitted via `GUEST_MLO_ACTIONS.*` member
   // expressions / a retention-sweep static literal — terminal values written to
