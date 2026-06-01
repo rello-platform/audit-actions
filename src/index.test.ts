@@ -54,11 +54,11 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 74);
+  assert.equal(active.length, 75);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
-  assert.equal(crud.length, 24, "CRUD/composite optgroup (22 + converted + UPDATE_ENTITLEMENT)");
+  assert.equal(crud.length, 25, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT)");
   assert.equal(
     events.length,
     50,
@@ -87,6 +87,7 @@ test("isCanonicalAuditAction narrows known + rejects unknown", () => {
   assert.equal(isCanonicalAuditAction("TenantApp.CREATE"), true);
   assert.equal(isCanonicalAuditAction("rello.meeting_booked"), true);
   assert.equal(isCanonicalAuditAction("agent_today_card_created"), true);
+  assert.equal(isCanonicalAuditAction("reactivated"), true);
   assert.equal(isCanonicalAuditAction("not_a_real_action"), false);
   assert.equal(isCanonicalAuditAction(""), false);
 });
@@ -117,8 +118,8 @@ test("FAMILY_REGISTRY does not re-declare signals <slug>.audit. families", () =>
 
 // ── step B: normalizer + reverse variant maps ──────────────────────────────
 
-test("CRUD_CASE_MAP folds case/tense to canonical (7 keys, verbatim otherwise)", () => {
-  assert.equal(Object.keys(CRUD_CASE_MAP).length, 7);
+test("CRUD_CASE_MAP folds case/tense to canonical (8 keys, verbatim otherwise)", () => {
+  assert.equal(Object.keys(CRUD_CASE_MAP).length, 8);
   assert.equal(normalizeCrudAction("CREATE"), "create");
   assert.equal(normalizeCrudAction("created"), "create");
   assert.equal(normalizeCrudAction("UPDATE"), "update");
@@ -126,6 +127,7 @@ test("CRUD_CASE_MAP folds case/tense to canonical (7 keys, verbatim otherwise)",
   assert.equal(normalizeCrudAction("DELETE"), "delete");
   assert.equal(normalizeCrudAction("deleted"), "delete");
   assert.equal(normalizeCrudAction("activated"), "ACTIVATE");
+  assert.equal(normalizeCrudAction("revoked"), "revoke");
   // verbatim pass-through — NEVER lowercased
   assert.equal(normalizeCrudAction("TENANT_PROVISIONED"), "TENANT_PROVISIONED");
   assert.equal(normalizeCrudAction("rello.meeting_booked"), "rello.meeting_booked");
@@ -160,6 +162,7 @@ test("reverse variant maps round-trip every forward entry, canonical included", 
   assert.deepEqual(CRUD_CASE_VARIANTS["update"], ["UPDATE", "updated", "update"]);
   assert.deepEqual(CRUD_CASE_VARIANTS["delete"], ["DELETE", "deleted", "delete"]);
   assert.deepEqual(CRUD_CASE_VARIANTS["ACTIVATE"], ["activated", "ACTIVATE"]);
+  assert.deepEqual(CRUD_CASE_VARIANTS["revoke"], ["revoked", "revoke"]);
   assert.deepEqual(APIKEY_ACTION_BUCKET_VARIANTS["update"], [
     "update",
     "UPDATE",
@@ -177,6 +180,7 @@ test("normalizeAuditAction: generic CRUD fold + verbatim domain/family pass-thro
   assert.equal(normalizeAuditAction("CREATE"), "create");
   assert.equal(normalizeAuditAction("updated"), "update");
   assert.equal(normalizeAuditAction("activated"), "ACTIVATE");
+  assert.equal(normalizeAuditAction("revoked"), "revoke");
   // domain events + families pass VERBATIM (no lowercasing)
   assert.equal(normalizeAuditAction("TENANT_PROVISIONED"), "TENANT_PROVISIONED");
   assert.equal(normalizeAuditAction("rello.meeting_booked"), "rello.meeting_booked");
