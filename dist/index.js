@@ -73,6 +73,16 @@ const EXACT_REGISTRY_DATA = {
         kind: "crud_composite",
         description: "Guest-MLO → agent conversion (guest-mlos convert route).",
     },
+    // Guest-MLO reactivation verb (`GUEST_MLO_ACTIONS.REACTIVATED`, guest-mlo
+    // reactivate route — FO-1 agent-initiated SUSPENDED→ACTIVE). A distinct
+    // lifecycle verb with NO base canonical to fold to (unlike `activated→ACTIVATE`
+    // or `revoked→revoke`), so it earns its own EXACT_REGISTRY key, mirroring its
+    // sibling `converted`. CRUD-class status update per guest-mlos.ts Q11/FO-1.
+    reactivated: {
+        lifecycle: "active",
+        kind: "crud_composite",
+        description: "Guest-MLO reactivation (guest-mlo reactivate route — FO-1 SUSPENDED→ACTIVE).",
+    },
     // Entitlement modify composite (`UPDATE_ENTITLEMENT`, tenants/[id]/
     // entitlements/[feature] route) — uppercase composite admin verb, mirroring
     // the `TICKET_UPDATE` / `CONFIG_CHANGE` composite-update convention.
@@ -270,6 +280,7 @@ export const CRUD_CASE_MAP = {
     DELETE: "delete",
     deleted: "delete",
     activated: "ACTIVATE", // tense → canonical uppercase composite (ACTIVATE ∈ registry)
+    revoked: "revoke", // tense → canonical `revoke` (∈ registry); mirrors `deleted→delete`
 };
 /**
  * 28 prod ApiKey `action` literals → 4 canonical buckets (`create`/`grant`/

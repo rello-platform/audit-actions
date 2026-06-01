@@ -163,6 +163,11 @@ declare const EXACT_REGISTRY_DATA: {
         readonly kind: "crud_composite";
         readonly description: "Guest-MLO → agent conversion (guest-mlos convert route).";
     };
+    readonly reactivated: {
+        readonly lifecycle: "active";
+        readonly kind: "crud_composite";
+        readonly description: "Guest-MLO reactivation (guest-mlo reactivate route — FO-1 SUSPENDED→ACTIVE).";
+    };
     readonly UPDATE_ENTITLEMENT: {
         readonly lifecycle: "active";
         readonly kind: "crud_composite";
