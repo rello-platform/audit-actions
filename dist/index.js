@@ -47,6 +47,23 @@ const EXACT_REGISTRY_DATA = {
     create: { lifecycle: "active", kind: "crud_composite" },
     update: { lifecycle: "active", kind: "crud_composite" },
     delete: { lifecycle: "active", kind: "crud_composite" },
+    // Soft-delete state-mutation verb. Spoke admin-state soft-deletes (set a
+    // CHURNED/inactive flag rather than hard-deleting the row) emit Pattern C →
+    // Rello writes `action: "soft_deleted"`. First producer: Newsletter-Studio's
+    // `DELETE /api/admin/tenants/[id]` (subscriptionStatus→CHURNED + isActive→false)
+    // via `newsletter-studio.audit.tenant.soft_deleted`. Distinct CRUD-class verb
+    // with NO base canonical to fold to (it is NOT the hard `delete` — the row
+    // survives), so it earns its own EXACT_REGISTRY key, mirroring the precedent
+    // set by `converted` / `reactivated`. The dotted `lender_llpa_override.`
+    // family already carries a `soft_deleted` leaf — this bare-verb registration
+    // is the platform-canonical underscore form for the SAME semantics, surfaced
+    // in the admin action-filter dropdown. Underscore form per the ratified
+    // grammar (matches `agent_today_card_created` et al.).
+    soft_deleted: {
+        lifecycle: "active",
+        kind: "crud_composite",
+        description: "Soft-delete (deactivate without hard-delete) state mutation — e.g. NS tenant soft-delete (CHURNED + isActive=false) via newsletter-studio.audit.tenant.soft_deleted.",
+    },
     login: { lifecycle: "active", kind: "crud_composite" },
     logout: { lifecycle: "active", kind: "crud_composite" },
     view: { lifecycle: "active", kind: "crud_composite" },
