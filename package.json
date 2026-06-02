@@ -1,6 +1,6 @@
 {
   "name": "@rello-platform/audit-actions",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Canonical AuditLog action-column vocabulary for the Rello ecosystem — the terminal-verb SOT (distinct from the signals <slug>.audit. signal-type families).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

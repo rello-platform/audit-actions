@@ -83,6 +83,11 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "crud_composite";
     };
+    readonly soft_deleted: {
+        readonly lifecycle: "active";
+        readonly kind: "crud_composite";
+        readonly description: "Soft-delete (deactivate without hard-delete) state mutation — e.g. NS tenant soft-delete (CHURNED + isActive=false) via newsletter-studio.audit.tenant.soft_deleted.";
+    };
     readonly login: {
         readonly lifecycle: "active";
         readonly kind: "crud_composite";

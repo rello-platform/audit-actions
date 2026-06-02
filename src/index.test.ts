@@ -54,11 +54,11 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 75);
+  assert.equal(active.length, 76);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
-  assert.equal(crud.length, 25, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT)");
+  assert.equal(crud.length, 26, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT + soft_deleted)");
   assert.equal(
     events.length,
     50,
@@ -88,6 +88,7 @@ test("isCanonicalAuditAction narrows known + rejects unknown", () => {
   assert.equal(isCanonicalAuditAction("rello.meeting_booked"), true);
   assert.equal(isCanonicalAuditAction("agent_today_card_created"), true);
   assert.equal(isCanonicalAuditAction("reactivated"), true);
+  assert.equal(isCanonicalAuditAction("soft_deleted"), true);
   assert.equal(isCanonicalAuditAction("not_a_real_action"), false);
   assert.equal(isCanonicalAuditAction(""), false);
 });
