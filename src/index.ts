@@ -161,6 +161,16 @@ const EXACT_REGISTRY_DATA = {
   lead_stage_changed: { lifecycle: "active", kind: "domain_event" },
   lead_deleted: { lifecycle: "active", kind: "domain_event" },
   lead_updated: { lifecycle: "active", kind: "domain_event" },
+  // LEAD-TRANSFER-PORTABILITY (fork model) — each agent holds a discrete Lead
+  // record for the same person. `lead_forked` audits the creation of a new
+  // per-agent fork from an existing lead; `lead_moved` audits a lead's
+  // ownership transfer between agents. Registered in W1 so the W2 fork/transfer
+  // operation can write these without tripping the armed `check:audit-actions`
+  // guard (the guard's grandfather baseline is file-keyed, so the W2 writer's
+  // not-yet-written file can't be grandfathered ahead of time — canonical
+  // registration is the durable, file-independent home).
+  lead_forked: { lifecycle: "active", kind: "domain_event" },
+  lead_moved: { lifecycle: "active", kind: "domain_event" },
   HUB_LINK_ISSUED: { lifecycle: "active", kind: "domain_event" },
   // Resend variant of HUB_LINK_ISSUED (issue-magic-link.ts ternary) — mirrors
   // its sibling's `domain_event` classification exactly.
