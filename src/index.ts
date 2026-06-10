@@ -240,6 +240,12 @@ const EXACT_REGISTRY_DATA = {
   "rello.agent_availability_updated": { lifecycle: "active", kind: "domain_event" },
   "rello.agent_availability_disabled": { lifecycle: "active", kind: "domain_event" },
 
+  // ── Domain events: synthetic-session IdP tier (2) ──────────────────────────
+  // SYNTHETIC-SESSION-IDP-CAPABILITY Phase 0b (SPEC-260610). Two guarded
+  // domain-event verbs for the Big Star test-tenant synthetic-session IdP.
+  synthetic_login: { lifecycle: "active", kind: "domain_event", description: "A synthetic test session (ml_token) was minted via POST /api/v1/auth/synthetic-session for a designated isSyntheticTestUser (Big Star test tenant). Logged on every issuance — synthetic logins are the most-audited login class. SPEC-260610." },
+  synthetic_flag_set: { lifecycle: "active", kind: "domain_event", description: "A User was flagged isSyntheticTestUser=true via the guarded PLATFORM_ADMIN setter (false→true only, tenant + role-ceiling gated). SPEC-260610." },
+
   // ── Telemetry tier (NOT canonical verbs; excluded from the dropdown) ───────
   // Env-mirror preflight rows (provisioning-core.ts). OQ-3: relocation off
   // AuditLog is a separate Kelly-gated decision.

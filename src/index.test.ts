@@ -54,15 +54,15 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 78);
+  assert.equal(active.length, 80);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
   assert.equal(crud.length, 26, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT + soft_deleted)");
   assert.equal(
     events.length,
-    52,
-    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved)",
+    54,
+    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved + synthetic_login + synthetic_flag_set)",
   );
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
@@ -79,7 +79,7 @@ test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered"
   assert.equal(crud[0], "create");
   assert.equal(crud[crud.length - 1], "CONFIG_CHANGE");
   assert.equal(events[0], "ACCOUNT_DELETE_REQUEST");
-  assert.equal(events[events.length - 1], "rello.agent_availability_disabled");
+  assert.equal(events[events.length - 1], "synthetic_flag_set");
 });
 
 test("isCanonicalAuditAction narrows known + rejects unknown", () => {

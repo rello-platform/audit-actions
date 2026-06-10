@@ -395,6 +395,16 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
     };
+    readonly synthetic_login: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "A synthetic test session (ml_token) was minted via POST /api/v1/auth/synthetic-session for a designated isSyntheticTestUser (Big Star test tenant). Logged on every issuance — synthetic logins are the most-audited login class. SPEC-260610.";
+    };
+    readonly synthetic_flag_set: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+        readonly description: "A User was flagged isSyntheticTestUser=true via the guarded PLATFORM_ADMIN setter (false→true only, tenant + role-ceiling gated). SPEC-260610.";
+    };
     readonly boot_preflight_env_mirror_check_v2: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
