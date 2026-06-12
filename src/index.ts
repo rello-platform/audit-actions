@@ -311,6 +311,11 @@ export const FAMILY_REGISTRY: readonly AuditActionFamily[] = [
       "LeadEmail rotation-engine lifecycle (retired/graduated/person_stop) — SKIP-TRACE-MULTI-EMAIL-OUTREACH discovery-wave status transitions written by src/lib/nurture/email-rotation.ts (Rule D: every status transition audited).",
   },
   {
+    prefix: "lead_phone.",
+    description:
+      "LeadPhone ranked-stack lifecycle (disposition_recorded/graduated/burned) — SKIP-TRACE-PHONE-OUTREACH P-1 calls-only substrate transitions written by Rello src/lib/phones/ranked-stack.ts (Rule D: every disposition/graduation/burn audited; B-01 calls-only — no automated outbound).",
+  },
+  {
     prefix: "co_marketing.",
     description:
       "Co-marketing functional co-branding state mutations (branding.upsert/branding.delete, config.update, attestation.write/attestation.revoke, and co_marketing.*_lender_assign verbs) — RESPA-defensibility audit trail per SPEC-RELLO-II-CO-MARKETING-FUNCTIONAL-CO-BRANDING §8.D. NO per-render audit (would create a billing-prep basis — §1.2).",
