@@ -104,6 +104,10 @@ test("matchesAuditActionFamily matches dotted domain-action prefixes only", () =
   assert.equal(matchesAuditActionFamily("crm.connection.synced")?.prefix, "crm.connection.");
   assert.equal(matchesAuditActionFamily("crm.connection.disconnected")?.prefix, "crm.connection.");
   assert.equal(matchesAuditActionFamily("crm.connection.expiry_reminder_sent")?.prefix, "crm.connection.");
+  assert.equal(matchesAuditActionFamily("lead_email.graduated")?.prefix, "lead_email.");
+  assert.equal(matchesAuditActionFamily("lead_phone.disposition_recorded")?.prefix, "lead_phone.");
+  assert.equal(matchesAuditActionFamily("lead_phone.graduated")?.prefix, "lead_phone.");
+  assert.equal(matchesAuditActionFamily("lead_phone.burned")?.prefix, "lead_phone.");
   assert.equal(matchesAuditActionFamily("create"), null);
   // Must NOT claim the signals-owned `<slug>.audit.` signal-type families.
   assert.equal(matchesAuditActionFamily("content-engine.audit.lead.created"), null);
