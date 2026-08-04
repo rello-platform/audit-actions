@@ -66,7 +66,7 @@ export interface AuditActionEntry {
    *
    * ── RETAINED BY DECISION, NOT BY OMISSION (Kelly, 2026-08-04) ────────────
    * A full classification of all 293 (action, entityType) pairs on PROD ran on
-   * 2026-08-04. Eleven ambiguous row-classes were reviewed and explicitly
+   * 2026-08-04. TWELVE ambiguous row-classes were reviewed and explicitly
    * RETAINED. They are recorded here so a later pass does not "discover" them
    * as untriaged and tier them:
    *   COST_LEDGER_APPEND, COST_LEDGER_REVERSAL, lead_tag_added, task.created,
@@ -74,6 +74,17 @@ export interface AuditActionEntry {
    *   lead_created / lead_updated / lead_deleted, mailgun_event_unmatched,
    *   drop/NewsletterSend, sms.default_used + sms.service-send,
    *   synthetic_login + synthetic_flag_set.
+   *
+   * `create`/`PlatformSignal` (writer: Rello
+   * `src/lib/signals/handlers/platformSignal.ts`) is the TWELFTH and was
+   * RE-CLASSIFIED into this set on 2026-08-04 — it had been provisionally
+   * bucketed as operational telemetry on the assumption that inbound
+   * engine-signal mirrors carry no compliance weight. Sampling the actual rows
+   * falsified that: one carries `the-drumbeat.content_compliance_blocked` with
+   * "Rate-related claims found (rate percentage) but missing required
+   * disclosures: Annual Percentage Rate (APR)…" — a TILA disclosure failure,
+   * which is compliance material by any reading. Do not re-bucket it from the
+   * handler's name or its `actorType: ENGINE`; read the payloads.
    *
    * `COST_LEDGER_APPEND` / `COST_LEDGER_REVERSAL` are HARD-EXCLUDED from ever
    * being tiered. They are written by a Postgres trigger
