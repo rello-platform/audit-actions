@@ -209,6 +209,17 @@ const EXACT_REGISTRY_DATA = {
     // ── Telemetry tier (NOT canonical verbs; excluded from the dropdown) ───────
     // Env-mirror preflight rows (provisioning-core.ts). OQ-3: relocation off
     // AuditLog is a separate Kelly-gated decision.
+    //
+    // v1 registered 2026-08-04 to close a tier inconsistency: the v1 action had
+    // 4,118 rows on PROD and was NOT tier-marked while its v2 successor WAS, so
+    // the same row-class was classified two different ways depending only on
+    // which spelling wrote it. Both are the same env-mirror telemetry.
+    boot_preflight_env_mirror_check: {
+        lifecycle: "active",
+        kind: "domain_event",
+        tier: "telemetry",
+        description: "env-mirror preflight check, v1 spelling — superseded by _v2, retained for the 4,118 historical PROD rows (OQ-3: relocation pending)",
+    },
     boot_preflight_env_mirror_check_v2: {
         lifecycle: "active",
         kind: "domain_event",

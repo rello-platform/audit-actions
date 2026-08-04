@@ -50,6 +50,44 @@ test("telemetry tier flagged + excluded from the active dropdown denominator", (
   );
   // ...but they ARE canonical-known (a future guard must not flag them as drift).
   assert.equal(isCanonicalAuditAction("boot_preflight_env_mirror_check_v2"), true);
+
+  // v1 must be tiered identically to v2 (added 2026-08-04). Before this, the
+  // same env-mirror row-class was classified two different ways depending only
+  // on which spelling wrote it.
+  assert.equal(EXACT_REGISTRY.boot_preflight_env_mirror_check.tier, "telemetry");
+  assert.equal(active.includes("boot_preflight_env_mirror_check" as never), false);
+  assert.equal(isCanonicalAuditAction("boot_preflight_env_mirror_check"), true);
+});
+
+test("RETAIN is the default — tier is opt-in, never inferred from absence", () => {
+  // The load-bearing property. A retention default that failed toward deletion
+  // on a compliance table is the one outcome worse than no tiering at all.
+  const tiered = (Object.keys(EXACT_REGISTRY) as (keyof typeof EXACT_REGISTRY)[])
+    .filter((k) => EXACT_REGISTRY[k].tier === "telemetry");
+
+  // Exactly the three env-mirror preflight actions carry the opt-out. If this
+  // count moves, someone tiered a row-class — that is a compliance decision and
+  // must be reviewed, not absorbed as a test update.
+  assert.deepEqual(tiered.sort(), [
+    "boot_preflight_env_mirror_check",
+    "boot_preflight_env_mirror_check_v2",
+    "boot_preflight_env_mirror_divergence_detected",
+  ]);
+
+  // Every other registered action retains by absence of `tier`.
+  for (const k of Object.keys(EXACT_REGISTRY) as (keyof typeof EXACT_REGISTRY)[]) {
+    if (!k.startsWith("boot_preflight")) {
+      assert.equal(EXACT_REGISTRY[k].tier, undefined, `${k} must not be tiered`);
+    }
+  }
+
+  // The cost-ledger actions are hard-excluded from tiering (fail-closed trigger
+  // guarantee on an append-only financial ledger). They are not in the registry
+  // at all today; if they are ever added, they must never carry a tier.
+  for (const k of ["COST_LEDGER_APPEND", "COST_LEDGER_REVERSAL"] as const) {
+    const entry = (EXACT_REGISTRY as Record<string, { tier?: string } | undefined>)[k];
+    assert.equal(entry?.tier, undefined, `${k} must never be tiered`);
+  }
 });
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {

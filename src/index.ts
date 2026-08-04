@@ -50,6 +50,37 @@ export interface AuditActionEntry {
    * `AuditLog` today but is NOT a canonical audit VERB and is excluded from the
    * admin action dropdown (e.g. `boot_preflight_*` env-mirror checks). Relocating
    * these off `AuditLog` is a separate Kelly-gated decision (OQ-3).
+   *
+   * ── THE DEFAULT IS RETAIN, AND IT IS STRUCTURAL ──────────────────────────
+   * This field is OPTIONAL, and that is load-bearing rather than incidental.
+   * Absent `tier` means the action is retained. An action nobody has
+   * classified — including every action added in the future, and every action
+   * not in this registry at all — is therefore RETAINED by construction, not by
+   * anyone remembering a convention. A retention default that failed toward
+   * deletion on a compliance table would be worse than having no tiering at
+   * all, so the only way to opt a row-class OUT of retention is to write
+   * `tier: "telemetry"` here, deliberately, with a justification.
+   *
+   * Consumers MUST therefore treat "no entry" and "entry without tier"
+   * identically: retain. Never infer telemetry from absence.
+   *
+   * ── RETAINED BY DECISION, NOT BY OMISSION (Kelly, 2026-08-04) ────────────
+   * A full classification of all 293 (action, entityType) pairs on PROD ran on
+   * 2026-08-04. Eleven ambiguous row-classes were reviewed and explicitly
+   * RETAINED. They are recorded here so a later pass does not "discover" them
+   * as untriaged and tier them:
+   *   COST_LEDGER_APPEND, COST_LEDGER_REVERSAL, lead_tag_added, task.created,
+   *   create/PlatformSignal, fired (LeadSharingRule + LeadSharingNotification),
+   *   lead_created / lead_updated / lead_deleted, mailgun_event_unmatched,
+   *   drop/NewsletterSend, sms.default_used + sms.service-send,
+   *   synthetic_login + synthetic_flag_set.
+   *
+   * `COST_LEDGER_APPEND` / `COST_LEDGER_REVERSAL` are HARD-EXCLUDED from ever
+   * being tiered. They are written by a Postgres trigger
+   * (`fn_costledger_insert_audit`) whose audit INSERT sits deliberately OUTSIDE
+   * the exception guard, so a failed audit write aborts the `CostLedger` INSERT
+   * — a fail-closed integrity guarantee on an append-only financial ledger.
+   * Tiering or relocating them would remove that guarantee. Do not.
    */
   readonly tier?: "telemetry";
   /** Human-oriented note on what the verb records. */
@@ -249,6 +280,18 @@ const EXACT_REGISTRY_DATA = {
   // ── Telemetry tier (NOT canonical verbs; excluded from the dropdown) ───────
   // Env-mirror preflight rows (provisioning-core.ts). OQ-3: relocation off
   // AuditLog is a separate Kelly-gated decision.
+  //
+  // v1 registered 2026-08-04 to close a tier inconsistency: the v1 action had
+  // 4,118 rows on PROD and was NOT tier-marked while its v2 successor WAS, so
+  // the same row-class was classified two different ways depending only on
+  // which spelling wrote it. Both are the same env-mirror telemetry.
+  boot_preflight_env_mirror_check: {
+    lifecycle: "active",
+    kind: "domain_event",
+    tier: "telemetry",
+    description:
+      "env-mirror preflight check, v1 spelling — superseded by _v2, retained for the 4,118 historical PROD rows (OQ-3: relocation pending)",
+  },
   boot_preflight_env_mirror_check_v2: {
     lifecycle: "active",
     kind: "domain_event",
