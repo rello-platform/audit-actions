@@ -292,6 +292,10 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
     };
+    readonly lead_merged: {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
     readonly HUB_LINK_ISSUED: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";

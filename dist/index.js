@@ -136,6 +136,12 @@ const EXACT_REGISTRY_DATA = {
     // registration is the durable, file-independent home).
     lead_forked: { lifecycle: "active", kind: "domain_event" },
     lead_moved: { lifecycle: "active", kind: "domain_event" },
+    // C-25 (2026-09-12): `mergeLeadsInTx` deletes the secondary lead and wrote NO
+    // audit row — the merge Event lived only on the survivor. `lead_merged` is
+    // written on the SECONDARY (the record that ceased to exist), with the
+    // surviving lead id, actor and reason in metadata, so "where did this lead
+    // go" is answerable by entityId alone.
+    lead_merged: { lifecycle: "active", kind: "domain_event" },
     HUB_LINK_ISSUED: { lifecycle: "active", kind: "domain_event" },
     // Resend variant of HUB_LINK_ISSUED (issue-magic-link.ts ternary) — mirrors
     // its sibling's `domain_event` classification exactly.
