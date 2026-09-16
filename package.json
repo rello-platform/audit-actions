@@ -21,7 +21,8 @@
   "scripts": {
     "compile": "tsc",
     "test": "tsc -p tsconfig.test.json && node --test .test-build/index.test.js",
-    "prepublishOnly": "npm run compile"
+    "prepublishOnly": "npm run compile",
+    "hooks": "git config core.hooksPath .husky || true"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
