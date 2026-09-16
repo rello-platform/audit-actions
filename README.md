@@ -73,7 +73,7 @@ workstream.
 ## Build / test / publish
 
 ```bash
-npm run build      # tsc → dist (committed)
+npm run compile      # tsc → dist (committed)
 npm test           # node --test (compiles to .test-build, then runs)
 ```
 
