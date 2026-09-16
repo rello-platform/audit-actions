@@ -1,6 +1,6 @@
 {
   "name": "@rello-platform/audit-actions",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Canonical AuditLog action-column vocabulary for the Rello ecosystem — the terminal-verb SOT (distinct from the signals <slug>.audit. signal-type families).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,9 +19,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "compile": "tsc",
     "test": "tsc -p tsconfig.test.json && node --test .test-build/index.test.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run compile"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
