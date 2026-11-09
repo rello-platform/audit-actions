@@ -296,6 +296,26 @@ declare const EXACT_REGISTRY_DATA: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
     };
+    readonly "outreach_series.bounce_stop_owed": {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
+    readonly "outreach_series.bounce_stop_settled": {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
+    readonly "outreach_series.bounce_stop_attempt": {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
+    readonly "outreach_series.bounce_address_cleared": {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
+    readonly "outreach_series.person_stop_attempt": {
+        readonly lifecycle: "active";
+        readonly kind: "domain_event";
+    };
     readonly HUB_LINK_ISSUED: {
         readonly lifecycle: "active";
         readonly kind: "domain_event";
