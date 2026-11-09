@@ -219,6 +219,18 @@ const EXACT_REGISTRY_DATA = {
   // surviving lead id, actor and reason in metadata, so "where did this lead
   // go" is answerable by entityId alone.
   lead_merged: { lifecycle: "active", kind: "domain_event" },
+  // SPEC-5 §7.2 (Rello 5.PR-1a, the series shared stop). A bounce that retires an address owes a
+  // series stop, written in the delivery event's own transaction (`bounce_stop_owed`); the retire
+  // or the lifecycle drain settles it (`bounce_stop_settled`); each failed drain attempt is
+  // recorded (`bounce_stop_attempt`); an admin clear lifts the address for the series
+  // (`bounce_address_cleared`). R298: a person stop that can't be written with its fact is owed
+  // on OutreachSeriesStopOwed and each failed drain attempt is recorded (`person_stop_attempt`).
+  // All written as raw SQL by src/lib/outreach/series-bounce.ts and series-stop-owed.ts.
+  "outreach_series.bounce_stop_owed": { lifecycle: "active", kind: "domain_event" },
+  "outreach_series.bounce_stop_settled": { lifecycle: "active", kind: "domain_event" },
+  "outreach_series.bounce_stop_attempt": { lifecycle: "active", kind: "domain_event" },
+  "outreach_series.bounce_address_cleared": { lifecycle: "active", kind: "domain_event" },
+  "outreach_series.person_stop_attempt": { lifecycle: "active", kind: "domain_event" },
   HUB_LINK_ISSUED: { lifecycle: "active", kind: "domain_event" },
   // Resend variant of HUB_LINK_ISSUED (issue-magic-link.ts ternary) — mirrors
   // its sibling's `domain_event` classification exactly.

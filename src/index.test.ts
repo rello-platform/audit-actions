@@ -92,15 +92,15 @@ test("RETAIN is the default — tier is opt-in, never inferred from absence", ()
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 81);
+  assert.equal(active.length, 86);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
   assert.equal(crud.length, 26, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT + soft_deleted)");
   assert.equal(
     events.length,
-    55,
-    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved + lead_merged + synthetic_login + synthetic_flag_set)",
+    60,
+    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved + lead_merged + 5 outreach_series.* + synthetic_login + synthetic_flag_set)",
   );
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
