@@ -92,15 +92,15 @@ test("RETAIN is the default — tier is opt-in, never inferred from absence", ()
 
 test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered", () => {
   const active = listActiveAuditActions();
-  assert.equal(active.length, 86);
+  assert.equal(active.length, 89);
 
   const crud = active.filter((a) => EXACT_REGISTRY[a].kind === "crud_composite");
   const events = active.filter((a) => EXACT_REGISTRY[a].kind === "domain_event");
   assert.equal(crud.length, 26, "CRUD/composite optgroup (22 + converted + reactivated + UPDATE_ENTITLEMENT + soft_deleted)");
   assert.equal(
     events.length,
-    60,
-    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved + lead_merged + 5 outreach_series.* + synthetic_login + synthetic_flag_set)",
+    63,
+    "Events optgroup (45 + HUB_LINK_RESENT + invite_resent + GUEST_MLO_DISCLOSURE_ACCEPTED + GUEST_MLO_DATA_RETENTION_EXPIRED + hh_nonqm_type_classified + lead_forked + lead_moved + lead_merged + 5 outreach_series.* + synthetic_login + synthetic_flag_set) + 3 billing.plan_switch.* (G-10R-2b)",
   );
 
   // Insertion order: every CRUD verb precedes every domain event (single split).
@@ -118,6 +118,34 @@ test("listActiveAuditActions reproduces the dropdown entries, grouped + ordered"
   assert.equal(crud[crud.length - 1], "CONFIG_CHANGE");
   assert.equal(events[0], "ACCOUNT_DELETE_REQUEST");
   assert.equal(events[events.length - 1], "synthetic_flag_set");
+});
+
+test("billing.plan_switch.* (G-10R-2b): the three plan-switch actions are canonical, active domain events, retained", () => {
+  // Rello's PFP-gateway plan switch writes these three AuditLog actions (admin start, resume of an
+  // armed operation, resolve of an observed-state operation). Exact entries, like outreach_series.*.
+  const actions = [
+    "billing.plan_switch.started",
+    "billing.plan_switch.resumed",
+    "billing.plan_switch.resolved",
+  ] as const;
+  const active = listActiveAuditActions() as readonly string[];
+  for (const a of actions) {
+    assert.equal(isCanonicalAuditAction(a), true, `${a} must be canonical`);
+    assert.equal(CANONICAL_AUDIT_ACTION_SET.has(a), true, a);
+    const entry = (EXACT_REGISTRY as Record<string, { lifecycle: string; kind: string; tier?: string; description?: string } | undefined>)[a];
+    assert.ok(entry, `${a} must have a registry entry`);
+    assert.equal(entry?.lifecycle, "active", a);
+    assert.equal(entry?.kind, "domain_event", a);
+    assert.equal(entry?.tier, undefined, `${a} must never be tiered (retained by default)`);
+    assert.equal(active.includes(a), true, `${a} must be in the dropdown denominator`);
+    assert.equal(normalizeAuditAction(a), a, `${a} passes through verbatim`);
+  }
+  // Near-misses are not canonical: the registry is exact, not a prefix.
+  for (const bad of ["billing.plan_switch", "billing.plan_switch.start", "billing.plan_switch.completed", "billing.plan_switch.started "]) {
+    assert.equal(isCanonicalAuditAction(bad), false, `${JSON.stringify(bad)} must not be canonical`);
+  }
+  // Registering the three exact actions did not add a billing.* family (that is a separate decision).
+  assert.equal(matchesAuditActionFamily("billing.plan_switch.started"), null);
 });
 
 test("isCanonicalAuditAction narrows known + rejects unknown", () => {

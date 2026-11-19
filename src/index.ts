@@ -231,6 +231,17 @@ const EXACT_REGISTRY_DATA = {
   "outreach_series.bounce_stop_attempt": { lifecycle: "active", kind: "domain_event" },
   "outreach_series.bounce_address_cleared": { lifecycle: "active", kind: "domain_event" },
   "outreach_series.person_stop_attempt": { lifecycle: "active", kind: "domain_event" },
+  // G-10R-2b (the PFP gateway's plan switch, Rello src/lib/billing/switch/*). One AuditLog row per
+  // lifecycle step of a plan-switch operation: `started` when an admin starts a switch
+  // (POST admin/tenants/[id]/plan-switch, actor admin), `resumed` when an armed operation is
+  // resumed (…/[op]/resume), `resolved` when an operation stuck on an observed state is settled
+  // (…/[op]/resolve: accept_observed or compensate). Domain events, active; exact entries (like
+  // outreach_series.*), not a `billing.` family: the other billing.* literals Rello writes
+  // (billing.addon.add, billing.portal.create, …) stay on its grandfather list until that
+  // family is registered as its own decision.
+  "billing.plan_switch.started": { lifecycle: "active", kind: "domain_event" },
+  "billing.plan_switch.resumed": { lifecycle: "active", kind: "domain_event" },
+  "billing.plan_switch.resolved": { lifecycle: "active", kind: "domain_event" },
   HUB_LINK_ISSUED: { lifecycle: "active", kind: "domain_event" },
   // Resend variant of HUB_LINK_ISSUED (issue-magic-link.ts ternary) — mirrors
   // its sibling's `domain_event` classification exactly.
